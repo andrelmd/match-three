@@ -1,0 +1,12 @@
+[gd_scene load_steps=4 format=3 uid="uid://cydb16dm3wfx5"]
+
+[ext_resource type="PackedScene" uid="uid://cc61bxuuc2h06" path="res://pieces/nodes/piece.tscn" id="1_n62dp"]
+[ext_resource type="Texture2D" uid="uid://20b14fqodn0y" path="res://addons/S13 Match3 Pixelart/03.png" id="2_jpnxn"]
+[ext_resource type="Texture2D" uid="uid://dmtq10blsgh88" path="res://addons/S13 Match3 Pixelart/03b.png" id="3_ot01w"]
+
+[node name="Log" instance=ExtResource("1_n62dp")]
+texture = ExtResource("2_jpnxn")
+piece_texture = ExtResource("2_jpnxn")
+selected_piece_texture = ExtResource("3_ot01w")
+piece_name = "log"
+selected = null
