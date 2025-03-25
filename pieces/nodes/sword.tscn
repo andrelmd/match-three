@@ -8,5 +8,4 @@
 texture = ExtResource("2_4aqqh")
 piece_texture = ExtResource("2_4aqqh")
 selected_piece_texture = ExtResource("3_swcs5")
-piece_name = "sword"
-selected = null
+piece_type = "sword"

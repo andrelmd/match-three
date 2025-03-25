@@ -12,7 +12,6 @@ texture = ExtResource("1_v0f8i")
 script = ExtResource("1_ytyhh")
 piece_texture = ExtResource("1_v0f8i")
 selected_piece_texture = ExtResource("3_3j2uh")
-selected = null
 area_node = NodePath("Area2D")
 
 [node name="Area2D" type="Area2D" parent="."]

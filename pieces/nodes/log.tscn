@@ -8,5 +8,4 @@
 texture = ExtResource("2_jpnxn")
 piece_texture = ExtResource("2_jpnxn")
 selected_piece_texture = ExtResource("3_ot01w")
-piece_name = "log"
-selected = null
+piece_type = "log"

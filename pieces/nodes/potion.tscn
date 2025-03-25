@@ -8,4 +8,4 @@
 texture = ExtResource("2_yh6wu")
 piece_texture = ExtResource("2_yh6wu")
 selected_piece_texture = ExtResource("3_th1l1")
-piece_name = "Potion"
+piece_type = "potion"

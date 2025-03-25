@@ -8,5 +8,4 @@
 texture = ExtResource("2_v3015")
 piece_texture = ExtResource("2_v3015")
 selected_piece_texture = ExtResource("3_fi4vx")
-piece_name = "coin"
-selected = null
+piece_type = "coin"

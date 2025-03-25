@@ -8,5 +8,4 @@
 texture = ExtResource("2_a65vn")
 piece_texture = ExtResource("2_a65vn")
 selected_piece_texture = ExtResource("3_ppi2a")
-piece_name = "Gem"
-selected = null
+piece_type = "gem"

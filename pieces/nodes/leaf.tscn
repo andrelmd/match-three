@@ -8,5 +8,4 @@
 texture = ExtResource("2_fby8i")
 piece_texture = ExtResource("2_fby8i")
 selected_piece_texture = ExtResource("3_auslw")
-piece_name = "leaf"
-selected = null
+piece_type = "leaf"
