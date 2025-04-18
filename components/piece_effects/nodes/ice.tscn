@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://bttw1ptsd4gg"]
+
+[ext_resource type="Script" uid="uid://ced5t8k77deqy" path="res://components/piece_effects/scripts/ice.gd" id="1_foxlq"]
+[ext_resource type="Script" uid="uid://c33uiwyotlt04" path="res://components/health/scripts/health_component.gd" id="2_fr7t2"]
+
+[node name="Ice" type="Node2D" node_paths=PackedStringArray("health_component")]
+script = ExtResource("1_foxlq")
+health_component = NodePath("HealthComponent")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.301961, 1, 1, 0.8)
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_fr7t2")
+max_health = 1
+metadata/_custom_type_script = "uid://c33uiwyotlt04"
