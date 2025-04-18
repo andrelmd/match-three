@@ -46,15 +46,13 @@ func _on_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int):
 	if not event is InputEventMouseButton:
 		return
 	
-	if not event.is_action_released("mouse_left"): 
+	if not event.is_action_released("mouse_left"):
 		return
 
 	if is_selected:
 		piece_deselected.emit(self)
 	else:
 		piece_selected.emit(self)
-
-	
 
 func move(target_position: Vector2):
 	create_tween().tween_property(self, "position", target_position, 0.3).set_trans(Tween.TRANS_ELASTIC)
