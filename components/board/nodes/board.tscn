@@ -20,6 +20,7 @@
 
 [node name="Board" type="Node2D" node_paths=PackedStringArray("piece_holder", "ice_holder", "destroy_match_timer", "slide_down_timer", "refill_timer")]
 script = ExtResource("1_lmh7n")
+max_height = 10
 piece_holder = NodePath("PieceHolder")
 ice_holder = NodePath("Ices")
 empty_spaces = Array[Vector2i]([Vector2i(0, 0), Vector2i(9, 7), Vector2i(9, 0), Vector2i(0, 7)])
