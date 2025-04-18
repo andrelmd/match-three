@@ -1,0 +1,11 @@
+[gd_scene load_steps=4 format=3 uid="uid://c4eosumxjdhto"]
+
+[ext_resource type="PackedScene" uid="uid://cc61bxuuc2h06" path="res://components/pieces/nodes/piece.tscn" id="1_abvh0"]
+[ext_resource type="Texture2D" uid="uid://wbgj5vtubchs" path="res://addons/S13 Match3 Pixelart/04.png" id="2_4aqqh"]
+[ext_resource type="Texture2D" uid="uid://drnns425n8nx7" path="res://addons/S13 Match3 Pixelart/04b.png" id="3_swcs5"]
+
+[node name="Sword" instance=ExtResource("1_abvh0")]
+texture = ExtResource("2_4aqqh")
+piece_texture = ExtResource("2_4aqqh")
+selected_piece_texture = ExtResource("3_swcs5")
+piece_type = "sword"
