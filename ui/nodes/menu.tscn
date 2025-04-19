@@ -1,0 +1,74 @@
+[gd_scene load_steps=5 format=3 uid="uid://c8nkydwhoip0v"]
+
+[ext_resource type="FontFile" uid="uid://bc7smkdtfbhc2" path="res://addons/kenney_kenney-fonts/Fonts/Kenney Blocks.ttf" id="1_hhod8"]
+[ext_resource type="Script" uid="uid://dw1603jkx3a0" path="res://ui/scripts/menu.gd" id="1_jfda7"]
+[ext_resource type="FontVariation" uid="uid://mtgxm1djujnx" path="res://resources/fonts/kenney_blocks.tres" id="3_l07t5"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_537f0"]
+font = ExtResource("1_hhod8")
+
+[node name="Menu" type="Control" node_paths=PackedStringArray("back_button", "exit_button", "main_menu_button")]
+process_mode = 2
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_jfda7")
+back_button = NodePath("Panel/VBoxContainer/MarginContainer/VBoxContainer/Back")
+exit_button = NodePath("Panel/VBoxContainer/MarginContainer/VBoxContainer/Exit")
+main_menu_button = NodePath("Panel/VBoxContainer/MarginContainer/VBoxContainer/MainMenu")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Pause" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+text = "Pause"
+label_settings = SubResource("LabelSettings_537f0")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Container" type="Container" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_right = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/VBoxContainer/MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Back" type="Button" parent="Panel/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_l07t5")
+text = "Voltar"
+
+[node name="Exit" type="Button" parent="Panel/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_l07t5")
+text = "Sair"
+
+[node name="MainMenu" type="Button" parent="Panel/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_l07t5")
+text = "Voltar ao menu"

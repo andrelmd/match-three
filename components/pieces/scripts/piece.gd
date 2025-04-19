@@ -30,7 +30,6 @@ func _ready():
 	texture = piece_texture
 	area_node.mouse_entered.connect(_on_piece_mouse_entered)
 	area_node.mouse_exited.connect(_on_piece_mouse_exited)
-	area_node.input_event.connect(_on_area_input_event)
 
 func _on_piece_mouse_entered():
 	texture = selected_piece_texture
@@ -41,18 +40,6 @@ func _on_piece_mouse_exited():
 		texture = piece_texture
 
 	mouse_is_inside_area = false
-
-func _on_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int):
-	if not event is InputEventMouseButton:
-		return
-	
-	if not event.is_action_released("mouse_left"):
-		return
-
-	if is_selected:
-		piece_deselected.emit(self)
-	else:
-		piece_selected.emit(self)
 
 func move(target_position: Vector2):
 	create_tween().tween_property(self, "position", target_position, 0.3).set_trans(Tween.TRANS_ELASTIC)

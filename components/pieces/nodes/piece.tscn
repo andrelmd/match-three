@@ -18,3 +18,5 @@ area_node = NodePath("Area2D")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 shape = SubResource("RectangleShape2D_orw54")
+
+[node name="Skills" type="Node" parent="."]
