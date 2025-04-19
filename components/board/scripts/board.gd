@@ -3,13 +3,14 @@ class_name Board extends Node2D
 @export_category("Board Configuration")
 @export var max_width: int = 10
 @export var max_height: int = 8
-@export var piece_size = Vector2i(16, 16)
-@export var pieces: Array[Piece] = []
-@export var ices: Array[IceEffect] = []
+@export var x_start: int
+@export var y_start: int
+@export var offset: int
+@export var piece_size = Vector2(16, 16)
 
 @export_category("Holders")
 @export var piece_holder: PieceHolder
-@export var ice_holder: Node2D
+@export var effect_holder: EffectHolder
 
 @export_category("Special Fills")
 @export var empty_spaces: Array[Vector2i]
@@ -17,20 +18,15 @@ class_name Board extends Node2D
 
 @export_category("Pieces")
 @export var possible_pieces: Array[PackedScene]
-@export var ice_piece: PackedScene
-
-@export_category("Timers")
-@export var destroy_match_timer: Timer
-@export var slide_down_timer: Timer
-@export var refill_timer: Timer
+@export var ice_effect: PackedScene
 
 var piece_types: Array[String] = []
-
-var selected_piece: Piece = null
 
 signal board_initialized
 signal piece_created
 signal board_refilled
+signal points_received(amount: int)
+signal move_made
 
 func _ready():
 	randomize()
@@ -40,137 +36,93 @@ func _ready():
 		piece_types.append(instance.piece_type)
 		instance.queue_free()
 
-
-func _is_position_valid(target_position: Vector2i) -> bool:
-	if not pieces.size() > _get_array_position(target_position):
-		return false
-	if _get_array_position(target_position) < 0:
-		return false
-	
-	return true
-
-
-func _get_array_position(target_position: Vector2i):
-	return target_position.x * max_height + target_position.y
-
-
-func get_piece_in_position(target_position: Vector2i) -> Piece:
-	if _is_position_valid(target_position):
-		return pieces[_get_array_position(target_position)]
-	
-	return null
-
-
-func set_piece_in_position(piece: Piece, target_position: Vector2i):
-	if _is_position_valid(target_position):
-		pieces[_get_array_position(target_position)] = piece
-
-func set_effect_in_position(effect: IceEffect, target_position: Vector2i):
-	if _is_position_valid(target_position):
-		ices[_get_array_position(target_position)] = effect
-
-func set_null_in_position(target_position: Vector2i) -> void:
-	pieces[_get_array_position(target_position)] = null
-
-
-func is_position_null(target_position: Vector2i) -> bool:
-	if not _is_position_valid(target_position):
-		return true
-
-	return pieces[_get_array_position(target_position)] == null
-
-
-func _grid_to_pixel(board_position: Vector2i) -> Vector2:
-	return Vector2(board_position * piece_size)
-
-
-func _pixel_to_grid(pixel_position: Vector2) -> Vector2i:
-	return Vector2i(pixel_position) / piece_size
-
-
-func _initialize_board() -> void:
-	pieces.resize(max_width * max_height)
+func _initialize_piece_holder() -> void:
+	piece_holder.initialize(max_width, max_height, piece_size)
 	for width in max_width:
 		for height in max_height:
-			var board_position = Vector2i(width, height)
-			
-			if _is_position_restricted_fill(board_position):
+			var cell_coordinate = Vector2i(width, height)
+			if _is_position_restricted_fill(cell_coordinate):
 				continue
-
+				
 			var piece_type = _get_random_piece_type()
-			if _check_match(width, height, piece_type):
+			if _check_match(cell_coordinate, piece_type):
 				for loop in range(100):
 					piece_type = _get_random_piece_type()
-					if not _check_match(width, height, piece_type):
+					if not _check_match(cell_coordinate, piece_type):
 						break
 			
-			var new_piece = _create_piece(piece_types.find(piece_type), board_position)
-			new_piece.move(_grid_to_pixel(board_position))
+			var new_piece = _create_piece(piece_types.find(piece_type), cell_coordinate)
+			new_piece.position = grid_to_pixel(cell_coordinate)
+
+func _initialize_effect_holder() -> void:
+	effect_holder.initialize(max_width, max_height, piece_size)
+	spawn_ice()
+
+func initialize() -> void:
+	_initialize_piece_holder()
+	_initialize_effect_holder()
 	board_initialized.emit()
 
 
-func _move_piece(from: Vector2i, to: Vector2i) -> void:
-	var from_piece: Piece = get_piece_in_position(from)
-	var to_piece: Piece = get_piece_in_position(to)
+func _move_piece(from_coordinate: Vector2i, to_coordinate: Vector2i) -> void:
+	var from_piece: Piece = piece_holder.get_in_position(from_coordinate)
+	var to_piece: Piece = piece_holder.get_in_position(to_coordinate)
 	
-	if (to_piece == null
-		or from_piece == null):
+	if (to_piece == null or from_piece == null):
 		return
 	
-	set_piece_in_position(from_piece, to)
-	set_piece_in_position(to_piece, from)
+	piece_holder.set_in_position(from_piece, to_coordinate)
+	piece_holder.set_in_position(to_piece, from_coordinate)
 	
-	from_piece.move(_grid_to_pixel(to))
-	to_piece.move(_grid_to_pixel(from))
+	from_piece.move(grid_to_pixel(to_coordinate))
+	to_piece.move(grid_to_pixel(from_coordinate))
 
 func _get_random_piece_type() -> String:
 	return piece_types.pick_random()
 
-func _create_piece(index: int, target_position: Vector2i) -> Piece:
+func _create_piece(index: int, cell_coordinate: Vector2i) -> Piece:
 	var piece: Piece = possible_pieces[index].instantiate()
-	set_piece_in_position(piece, target_position)
 	piece_holder.add_child(piece)
-	piece.position = _grid_to_pixel(Vector2i(target_position.x, -1))
+	piece_holder.set_in_position(piece, cell_coordinate)
+	piece.position = grid_to_pixel(Vector2i(cell_coordinate.x, -1))
 	piece_created.emit(piece)
 	return piece
-
 
 func _slide_pieces_down() -> void:
 	for width in range(max_width):
 		for height in range(max_height - 1, -1, -1):
-			var position_to_fill = Vector2i(width, height)
-			if not is_position_null(position_to_fill):
+			var cell_fill_coordinate = Vector2i(width, height)
+			if not piece_holder.is_position_null(cell_fill_coordinate):
 				continue
 				
-			if _is_position_restricted_fill(position_to_fill):
+			if _is_position_restricted_fill(cell_fill_coordinate):
 				continue
 				
 			for height_offset in range(height - 1, -1, -1):
-				var position_to_get_piece = Vector2i(width, height_offset)
-				if is_position_null(position_to_get_piece):
+				var piece_cell_coordinate = Vector2i(width, height_offset)
+				if piece_holder.is_position_null(piece_cell_coordinate):
 					continue
 				
-				if _is_position_restricted_fill(position_to_get_piece):
+				if _is_position_restricted_fill(piece_cell_coordinate):
 					continue
 				
-				var piece = get_piece_in_position(position_to_get_piece)
-				
-				piece.move(_grid_to_pixel(position_to_fill))
-				set_piece_in_position(piece, position_to_fill)
-				set_null_in_position(position_to_get_piece)
+				var piece = piece_holder.get_in_position(piece_cell_coordinate)
+				piece.move(grid_to_pixel(cell_fill_coordinate))
+				piece_holder.set_in_position(piece, cell_fill_coordinate)
+				piece_holder.set_null_in_position(piece_cell_coordinate)
 				break
-
 
 func _swap_pieces(from: Vector2i, to: Vector2i) -> void:
 	_move_piece(from, to)
+	move_made.emit()
 
 
-func _check_horizontal_match(width: int, height: int, piece_type: String) -> bool:
-	if width < 2:
+func _check_horizontal_match(cell_coordinate: Vector2i, piece_type: String) -> bool:
+	if cell_coordinate.x < 2:
 		return false
 
-	var left_piece = get_piece_in_position(Vector2i(width - 1, height))
-	var left_most_piece = get_piece_in_position(Vector2i(width - 2, height))
+	var left_piece = piece_holder.get_in_position(Vector2i(cell_coordinate.x - 1, cell_coordinate.y))
+	var left_most_piece = piece_holder.get_in_position(Vector2i(cell_coordinate.x - 2, cell_coordinate.y))
 	
 	if left_piece == null or left_most_piece == null:
 		return false
@@ -181,12 +133,12 @@ func _check_horizontal_match(width: int, height: int, piece_type: String) -> boo
 	
 	return true
 
-func _check_vertical_match(width: int, height: int, piece_type: String) -> bool:
-	if height < 2:
+func _check_vertical_match(cell_coordinate: Vector2i, piece_type: String) -> bool:
+	if cell_coordinate.y < 2:
 		return false
 
-	var upper_piece = get_piece_in_position(Vector2i(width, height - 1))
-	var upper_most_piece = get_piece_in_position(Vector2i(width, height - 2))
+	var upper_piece = piece_holder.get_in_position(Vector2i(cell_coordinate.x, cell_coordinate.y - 1))
+	var upper_most_piece = piece_holder.get_in_position(Vector2i(cell_coordinate.x, cell_coordinate.y - 2))
 	
 	if upper_piece == null or upper_most_piece == null:
 		return false
@@ -197,50 +149,50 @@ func _check_vertical_match(width: int, height: int, piece_type: String) -> bool:
 	
 	return true
 
-
-func _check_match(width: int, height: int, piece_type: String) -> bool:
-	return _check_horizontal_match(width, height, piece_type) or _check_vertical_match(width, height, piece_type)
-
+func _check_match(cell_coordinate: Vector2i, piece_type: String) -> bool:
+	return _check_horizontal_match(cell_coordinate, piece_type) or _check_vertical_match(cell_coordinate, piece_type)
 
 func _destroy_matched() -> bool:
 	var has_destroyed: bool = false
+	var quantity_destroyed = 0
 	for row in max_width:
 		for column in max_height:
 			var board_position = Vector2i(row, column)
-			if is_position_null(board_position):
+			if piece_holder.is_position_null(board_position):
 				continue
-			if not get_piece_in_position(board_position).matched:
+			if not piece_holder.get_in_position(board_position).matched:
 				continue
 			
-			get_piece_in_position(board_position).destroy_matched()
-			set_piece_in_position(null, board_position)
+			piece_holder.get_in_position(board_position).destroy_matched()
+			piece_holder.set_in_position(null, board_position)
 			_destroy_ices(board_position)
+			quantity_destroyed = quantity_destroyed + 1
 			has_destroyed = true
 	
+	points_received.emit(_calculate_points_received(quantity_destroyed))
 	return has_destroyed
-
 
 func _find_and_set_matchs() -> bool:
 	var match_found = false
 	for row in max_width:
 		for column in max_height:
-			var board_position = Vector2i(row, column)
-			if is_position_null(board_position):
+			var cell_coordinate = Vector2i(row, column)
+			if piece_holder.is_position_null(cell_coordinate):
 				continue
-
-			var piece = get_piece_in_position(board_position)
+				
+			var piece = piece_holder.get_in_position(cell_coordinate)
 			var piece_type = piece.piece_type
-
+			
 			if row > 1:
-				if _check_horizontal_match(row, column, piece_type):
-					get_piece_in_position(Vector2i(row - 1, column)).matched = true
-					get_piece_in_position(Vector2i(row - 2, column)).matched = true
+				if _check_horizontal_match(cell_coordinate, piece_type):
+					piece_holder.get_in_position(Vector2i(row - 1, column)).matched = true
+					piece_holder.get_in_position(Vector2i(row - 2, column)).matched = true
 					piece.matched = true
-
+				
 			if column > 1:
-				if (_check_vertical_match(row, column, piece_type)):
-					get_piece_in_position(Vector2i(row, column - 1)).matched = true
-					get_piece_in_position(Vector2i(row, column - 2)).matched = true
+				if (_check_vertical_match(cell_coordinate, piece_type)):
+					piece_holder.get_in_position(Vector2i(row, column - 1)).matched = true
+					piece_holder.get_in_position(Vector2i(row, column - 2)).matched = true
 					piece.matched = true
 			
 			if piece.matched:
@@ -251,39 +203,60 @@ func _find_and_set_matchs() -> bool:
 func _refill_pieces() -> void:
 	for width in max_width:
 		for height in max_height:
-			var target_board_position = Vector2i(width, height)
-			if not is_position_null(target_board_position):
+			var cell_coordinate = Vector2i(width, height)
+			if not piece_holder.is_position_null(cell_coordinate):
 				continue
-			if _is_position_restricted_fill(target_board_position):
+			if _is_position_restricted_fill(cell_coordinate):
 				continue
-			var new_piece = _create_piece(randi() % possible_pieces.size(), target_board_position)
-			new_piece.move(_grid_to_pixel(target_board_position))
+			var new_piece = _create_piece(randi() % possible_pieces.size(), cell_coordinate)
+			new_piece.move(grid_to_pixel(cell_coordinate))
 
-func _is_position_restricted_fill(target_position: Vector2i):
-	return _is_position_in_array(empty_spaces, target_position)
+func _is_position_restricted_fill(cell_coordinate: Vector2i):
+	return _is_position_in_array(empty_spaces, cell_coordinate)
 
-func _is_position_in_array(array: Array, target_position: Vector2i) -> bool:
+func _is_position_in_array(array: Array, cell_coordinate: Vector2i) -> bool:
 	for i in array.size():
-		if array[i] == target_position:
+		if array[i] == cell_coordinate:
 			return true
 	return false
 
 func spawn_ice():
-	ices.resize(max_width * max_height)
 	for width in max_width:
 		for height in max_height:
-			var cell_position = Vector2i(width, height)
-			if _is_position_in_array(ice_spaces, cell_position):
-				var new_ice_piece = ice_piece.instantiate()
-				ice_holder.add_child(new_ice_piece)
-				set_effect_in_position(new_ice_piece, cell_position)
-				new_ice_piece.position = _grid_to_pixel(cell_position)
+			var cell_coordinate = Vector2i(width, height)
+			if _is_position_in_array(ice_spaces, cell_coordinate):
+				var new_ice = ice_effect.instantiate()
+				effect_holder.add_child(new_ice)
+				effect_holder.set_in_position(new_ice, cell_coordinate)
+				new_ice.position = grid_to_pixel(cell_coordinate)
 
 func _destroy_ices(target_position: Vector2i) -> void:
-	for ice in ices:
-		if not ice: continue
-		var cell_position = _pixel_to_grid(ice.position)
-		if (target_position - cell_position).length() > 1:
+	for effect in effect_holder.holding:
+		if effect  == null or not effect is IceEffect:
 			continue
 		
-		ice.take_damage(1)
+		if (pixel_to_grid(effect.position) - target_position).length()  > 1:
+			continue
+	
+		effect.take_damage(1)
+
+func _calculate_points_received(quantity_destroyed: int):
+	var surplus = quantity_destroyed % 3
+
+	if surplus == 0:
+		@warning_ignore("integer_division")
+		return quantity_destroyed / 3
+	elif surplus == 1:
+		@warning_ignore("integer_division")
+		return (quantity_destroyed - 1) / 3 + 1
+	else:
+		@warning_ignore("integer_division")
+		return (quantity_destroyed - 2) / 3 + 2
+
+func grid_to_pixel(cell_position: Vector2i) -> Vector2:
+	return Vector2(x_start + offset * cell_position.x, y_start + offset * cell_position.y)
+
+func pixel_to_grid(global_pixel_position: Vector2) -> Vector2i:
+	var new_x = roundi((global_pixel_position.x - x_start) / offset)
+	var new_y = roundi((global_pixel_position.y - y_start) / offset)
+	return Vector2i(new_x, new_y)

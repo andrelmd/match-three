@@ -3,50 +3,41 @@ class_name BoardMoveState extends State
 @export var board: Board
 @export var has_moved_next_state: State
 
-var selected_piece: Piece
-var piece_buffer: Piece
+var movement_start_coordinate: Vector2i = Vector2i.ZERO
+var movement_end_coordinate: Vector2i = Vector2i.ZERO
+var has_moved: bool = false
 
-func _ready() -> void:
-	board.piece_created.connect(_on_board_piece_created)
-
-func _on_board_piece_created(piece: Piece) -> void:
-	piece.piece_selected.connect(_on_board_piece_selected)
-
-func _on_board_piece_selected(piece: Piece) -> void:
-	piece_buffer = piece
-
-func update(_delta: float) -> void:
-	if not piece_buffer:
-		return
+func handle_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_touch"):
+		movement_start_coordinate = board.pixel_to_grid(get_viewport().get_mouse_position())
+	if event.is_action_released("ui_touch"):
+		movement_end_coordinate = board.pixel_to_grid(get_viewport().get_mouse_position())
 	
-	handle_select_piece(piece_buffer)
-	piece_buffer = null
-	finished.emit(has_moved_next_state.name)
-
-func handle_select_piece(piece: Piece):
-	if selected_piece == null:
-		selected_piece = piece
-		selected_piece.is_selected = true
-		return
-
-	if selected_piece == piece:
-		selected_piece.is_selected = false
-		selected_piece = null
-		return
-	
-	var selected_piece_board_position = board._pixel_to_grid(selected_piece.position)
-	var piece_board_position = board._pixel_to_grid(piece.position)
-
-	if (selected_piece_board_position - piece_board_position).length() > 1:
-		selected_piece.is_selected = false
-		selected_piece = piece
-		selected_piece.is_selected = true
-		return
-
-	board._swap_pieces(selected_piece_board_position, piece_board_position)
-	selected_piece.is_selected = false
-	piece.is_selected = false
-	selected_piece = null
+	if movement_end_coordinate != Vector2i.ZERO:
+		handle_select_piece()
+		movement_end_coordinate = Vector2i.ZERO
+		has_moved = true
 
 func enter() -> void:
-	piece_buffer = null
+	has_moved = false
+
+func update(_delta: float) -> void:
+	if has_moved:
+		finished.emit(has_moved_next_state.name)
+
+func handle_select_piece():
+	var direction = Vector2i(Vector2(movement_end_coordinate - movement_start_coordinate).normalized())
+	var first_piece_cell_coordinate = movement_start_coordinate
+	var second_piece_cell_coordinate = movement_start_coordinate + direction
+	var first_piece = board.piece_holder.get_in_position(first_piece_cell_coordinate)
+	var second_piece = board.piece_holder.get_in_position(second_piece_cell_coordinate)
+	
+	if first_piece == null or second_piece == null:
+		return
+
+	first_piece.is_selected = true
+	second_piece.is_selected = true
+
+	board._swap_pieces(first_piece_cell_coordinate, second_piece_cell_coordinate)
+	first_piece.is_selected = false
+	second_piece.is_selected = false

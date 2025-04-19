@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://de10b5p4bcncy"]
+[gd_scene load_steps=19 format=3 uid="uid://de10b5p4bcncy"]
 
 [ext_resource type="Script" uid="uid://bfri7hqi5iwfr" path="res://components/board/scripts/board.gd" id="1_lmh7n"]
 [ext_resource type="PackedScene" uid="uid://bigundsnw0m6n" path="res://components/pieces/nodes/coin.tscn" id="2_ei70s"]
@@ -9,27 +9,29 @@
 [ext_resource type="PackedScene" uid="uid://c0e160wnje4li" path="res://components/pieces/nodes/shield.tscn" id="7_2y4o2"]
 [ext_resource type="PackedScene" uid="uid://c4eosumxjdhto" path="res://components/pieces/nodes/sword.tscn" id="8_p5usr"]
 [ext_resource type="Script" uid="uid://3pessb0s7wyl" path="res://components/state_machine/scripts/board_state_machine.gd" id="9_ei70s"]
-[ext_resource type="PackedScene" uid="uid://bttw1ptsd4gg" path="res://components/piece_effects/nodes/ice.tscn" id="9_yldt0"]
+[ext_resource type="PackedScene" uid="uid://bttw1ptsd4gg" path="res://components/piece_effects/nodes/ice_effect.tscn" id="9_yldt0"]
 [ext_resource type="Script" uid="uid://carb5xr2sulk5" path="res://components/state_machine/scripts/board_initialize_state.gd" id="10_2ctr4"]
 [ext_resource type="Script" uid="uid://bcxxobk5h5yu0" path="res://components/state_machine/scripts/board_check_match_state.gd" id="10_a6b7j"]
 [ext_resource type="Script" uid="uid://3bbj6uu7ldqd" path="res://components/state_machine/scripts/board_move_state.gd" id="10_g2vqq"]
+[ext_resource type="Script" uid="uid://bsg5sjm55ttxi" path="res://components/board/scripts/effect_holder.gd" id="11_qif4m"]
 [ext_resource type="Script" uid="uid://dtki8o5lmxa1q" path="res://components/board/scripts/piece_holder.gd" id="13_0h3so"]
 [ext_resource type="Script" uid="uid://cve6op4sjghic" path="res://components/state_machine/scripts/board_destroy_match_state.gd" id="14_2y4o2"]
 [ext_resource type="Script" uid="uid://cydjuvqd03jgk" path="res://components/state_machine/scripts/board_refill_timer_state.gd" id="15_p5usr"]
 [ext_resource type="Script" uid="uid://dj6h322nn2sgc" path="res://components/state_machine/scripts/board_slide_down_state.gd" id="16_axfg5"]
 
-[node name="Board" type="Node2D" node_paths=PackedStringArray("piece_holder", "ice_holder", "destroy_match_timer", "slide_down_timer", "refill_timer")]
+[node name="Board" type="Node2D" node_paths=PackedStringArray("piece_holder", "effect_holder")]
 script = ExtResource("1_lmh7n")
-max_height = 10
+max_width = 9
+max_height = 9
+x_start = 8
+y_start = 10
+offset = 16
 piece_holder = NodePath("PieceHolder")
-ice_holder = NodePath("Ices")
+effect_holder = NodePath("EffectHolder")
 empty_spaces = Array[Vector2i]([Vector2i(0, 0), Vector2i(9, 7), Vector2i(9, 0), Vector2i(0, 7)])
 ice_spaces = Array[Vector2i]([Vector2i(5, 0), Vector2i(6, 0)])
 possible_pieces = Array[PackedScene]([ExtResource("2_ei70s"), ExtResource("3_a6b7j"), ExtResource("4_g2vqq"), ExtResource("5_2ctr4"), ExtResource("6_0h3so"), ExtResource("7_2y4o2"), ExtResource("8_p5usr")])
-ice_piece = ExtResource("9_yldt0")
-destroy_match_timer = NodePath("DestroyMatchTimer")
-slide_down_timer = NodePath("SlideDownTimer")
-refill_timer = NodePath("RefillTimer")
+ice_effect = ExtResource("9_yldt0")
 
 [node name="DestroyMatchTimer" type="Timer" parent="."]
 wait_time = 0.5
@@ -42,11 +44,6 @@ one_shot = true
 [node name="RefillTimer" type="Timer" parent="."]
 wait_time = 0.5
 one_shot = true
-
-[node name="PieceHolder" type="Node2D" parent="."]
-script = ExtResource("13_0h3so")
-
-[node name="Ices" type="Node2D" parent="."]
 
 [node name="BoardStateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
 script = ExtResource("9_ei70s")
@@ -92,3 +89,10 @@ board = NodePath("../..")
 slide_down_timer = NodePath("../../SlideDownTimer")
 slided_down_pieces_next_state = NodePath("../BoardRefillTimerState")
 metadata/_custom_type_script = "uid://dj6h322nn2sgc"
+
+[node name="PieceHolder" type="Node2D" parent="."]
+script = ExtResource("13_0h3so")
+
+[node name="EffectHolder" type="Node2D" parent="."]
+script = ExtResource("11_qif4m")
+metadata/_custom_type_script = "uid://bsg5sjm55ttxi"

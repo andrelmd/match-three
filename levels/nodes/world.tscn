@@ -1,8 +1,27 @@
-[gd_scene load_steps=2 format=3 uid="uid://15imf17udoo2"]
+[gd_scene load_steps=5 format=3 uid="uid://15imf17udoo2"]
 
 [ext_resource type="PackedScene" uid="uid://de10b5p4bcncy" path="res://components/board/nodes/board.tscn" id="1_oloi4"]
+[ext_resource type="Script" uid="uid://b2utaacxegjnd" path="res://levels/scripts/world.gd" id="1_wyais"]
+[ext_resource type="PackedScene" uid="uid://1ufxi2hewyro" path="res://ui/nodes/game_ui.tscn" id="2_5234a"]
+[ext_resource type="PackedScene" uid="uid://c8nkydwhoip0v" path="res://ui/nodes/menu.tscn" id="3_5rs5u"]
 
-[node name="World" type="Node2D"]
+[node name="World" type="Node2D" node_paths=PackedStringArray("menu")]
+script = ExtResource("1_wyais")
+menu = NodePath("TextureRect/Menu")
 
-[node name="Board" parent="." instance=ExtResource("1_oloi4")]
-position = Vector2(8, 160)
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_right = 160.0
+offset_bottom = 320.0
+metadata/_edit_use_anchors_ = true
+
+[node name="Board" parent="TextureRect" instance=ExtResource("1_oloi4")]
+x_start = 16
+y_start = 160
+
+[node name="GameUi" parent="TextureRect" node_paths=PackedStringArray("board") instance=ExtResource("2_5234a")]
+layout_mode = 1
+board = NodePath("../Board")
+
+[node name="Menu" parent="TextureRect" instance=ExtResource("3_5rs5u")]
+visible = false
+layout_mode = 1

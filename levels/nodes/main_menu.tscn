@@ -1,21 +1,29 @@
-[gd_scene load_steps=6 format=3 uid="uid://pjn3y3ib5kgd"]
+[gd_scene load_steps=5 format=3 uid="uid://pjn3y3ib5kgd"]
 
-[ext_resource type="Script" uid="uid://0luye2lgrxmk" path="res://levels/scripts/main_menu.gd" id="1_n65cy"]
-[ext_resource type="Texture2D" uid="uid://d1o0avcyjf8tf" path="res://addons/kenney_ui-pack-pixel-adventure/Tiles/Large tiles/Thick outline/tile_0018.png" id="1_vg8gd"]
-[ext_resource type="PackedScene" uid="uid://15imf17udoo2" path="res://levels/nodes/world.tscn" id="2_k652k"]
-[ext_resource type="LabelSettings" uid="uid://ce63ch7bdniq5" path="res://resources/labels/kenney_blocks_settings.tres" id="2_n65cy"]
-[ext_resource type="FontFile" uid="uid://bc7smkdtfbhc2" path="res://addons/kenney_kenney-fonts/Fonts/Kenney Blocks.ttf" id="3_k652k"]
+[ext_resource type="Script" uid="uid://0luye2lgrxmk" path="res://levels/scripts/main_menu.gd" id="1_k652k"]
+[ext_resource type="Texture2D" uid="uid://d1o0avcyjf8tf" path="res://addons/kenney_ui-pack-pixel-adventure/Tiles/Large tiles/Thick outline/tile_0018.png" id="3_g1r2o"]
+[ext_resource type="LabelSettings" uid="uid://ce63ch7bdniq5" path="res://resources/labels/kenney_blocks_settings.tres" id="4_re5ae"]
+[ext_resource type="FontFile" uid="uid://bc7smkdtfbhc2" path="res://addons/kenney_kenney-fonts/Fonts/Kenney Blocks.ttf" id="5_srpkg"]
 
-[node name="MainMenu" type="Node2D" node_paths=PackedStringArray("exit_button", "new_game_button")]
-script = ExtResource("1_n65cy")
+[node name="MainMenu" type="Control" node_paths=PackedStringArray("exit_button", "new_game_button")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_k652k")
 exit_button = NodePath("NinePatchRect/VBoxContainer/MarginContainer/VBoxContainer/Exit")
 new_game_button = NodePath("NinePatchRect/VBoxContainer/MarginContainer/VBoxContainer/Play")
-level_scene = ExtResource("2_k652k")
 
 [node name="NinePatchRect" type="NinePatchRect" parent="."]
-offset_right = 160.0
-offset_bottom = 320.0
-texture = ExtResource("1_vg8gd")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_g1r2o")
 region_rect = Rect2(0, 0, 32, 32)
 patch_margin_left = 10
 patch_margin_top = 10
@@ -23,8 +31,12 @@ patch_margin_right = 10
 patch_margin_bottom = 10
 
 [node name="VBoxContainer" type="VBoxContainer" parent="NinePatchRect"]
-offset_right = 160.0
-offset_bottom = 320.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="CenterContainer" type="CenterContainer" parent="NinePatchRect/VBoxContainer"]
 layout_mode = 2
@@ -34,7 +46,7 @@ custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 0
 text = "Match Dungeon"
-label_settings = ExtResource("2_n65cy")
+label_settings = ExtResource("4_re5ae")
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
@@ -55,7 +67,7 @@ alignment = 1
 [node name="Play" type="Button" parent="NinePatchRect/VBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_fonts/font = ExtResource("3_k652k")
+theme_override_fonts/font = ExtResource("5_srpkg")
 theme_override_font_sizes/font_size = 14
 text = "Jogar"
 
@@ -63,14 +75,14 @@ text = "Jogar"
 visible = false
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_fonts/font = ExtResource("3_k652k")
+theme_override_fonts/font = ExtResource("5_srpkg")
 theme_override_font_sizes/font_size = 14
 text = "Configuraçoes"
 
 [node name="Exit" type="Button" parent="NinePatchRect/VBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_fonts/font = ExtResource("3_k652k")
+theme_override_fonts/font = ExtResource("5_srpkg")
 theme_override_font_sizes/font_size = 14
 text = "Sair"
 
