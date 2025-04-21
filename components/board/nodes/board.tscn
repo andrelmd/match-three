@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://de10b5p4bcncy"]
+[gd_scene load_steps=21 format=3 uid="uid://de10b5p4bcncy"]
 
 [ext_resource type="Script" uid="uid://bfri7hqi5iwfr" path="res://components/board/scripts/board.gd" id="1_lmh7n"]
 [ext_resource type="PackedScene" uid="uid://bigundsnw0m6n" path="res://components/pieces/nodes/coin.tscn" id="2_ei70s"]
@@ -9,15 +9,17 @@
 [ext_resource type="PackedScene" uid="uid://c0e160wnje4li" path="res://components/pieces/nodes/shield.tscn" id="7_2y4o2"]
 [ext_resource type="PackedScene" uid="uid://c4eosumxjdhto" path="res://components/pieces/nodes/sword.tscn" id="8_p5usr"]
 [ext_resource type="Script" uid="uid://3pessb0s7wyl" path="res://components/state_machine/scripts/board_state_machine.gd" id="9_ei70s"]
-[ext_resource type="PackedScene" uid="uid://bttw1ptsd4gg" path="res://components/piece_effects/nodes/ice_effect.tscn" id="9_yldt0"]
+[ext_resource type="PackedScene" uid="uid://cuk8gn4vv8xee" path="res://components/piece_effects/nodes/ice_effect.tscn" id="9_yldt0"]
 [ext_resource type="Script" uid="uid://carb5xr2sulk5" path="res://components/state_machine/scripts/board_initialize_state.gd" id="10_2ctr4"]
 [ext_resource type="Script" uid="uid://bcxxobk5h5yu0" path="res://components/state_machine/scripts/board_check_match_state.gd" id="10_a6b7j"]
 [ext_resource type="Script" uid="uid://3bbj6uu7ldqd" path="res://components/state_machine/scripts/board_move_state.gd" id="10_g2vqq"]
 [ext_resource type="Script" uid="uid://bsg5sjm55ttxi" path="res://components/board/scripts/effect_holder.gd" id="11_qif4m"]
 [ext_resource type="Script" uid="uid://dtki8o5lmxa1q" path="res://components/board/scripts/piece_holder.gd" id="13_0h3so"]
+[ext_resource type="Script" uid="uid://bsacyjrlqr7c5" path="res://components/piece_effects/scripts/ice_effect_strategy.gd" id="13_x2agg"]
 [ext_resource type="Script" uid="uid://cve6op4sjghic" path="res://components/state_machine/scripts/board_destroy_match_state.gd" id="14_2y4o2"]
 [ext_resource type="Script" uid="uid://cydjuvqd03jgk" path="res://components/state_machine/scripts/board_refill_timer_state.gd" id="15_p5usr"]
 [ext_resource type="Script" uid="uid://dj6h322nn2sgc" path="res://components/state_machine/scripts/board_slide_down_state.gd" id="16_axfg5"]
+[ext_resource type="Script" uid="uid://cbmrhjumb5lw4" path="res://components/state_machine/scripts/board_execute_piece_skills_state.gd" id="18_etvvj"]
 
 [node name="Board" type="Node2D" node_paths=PackedStringArray("piece_holder", "effect_holder")]
 script = ExtResource("1_lmh7n")
@@ -25,70 +27,21 @@ max_width = 9
 max_height = 9
 x_start = 8
 y_start = 10
-offset = 16
 piece_holder = NodePath("PieceHolder")
 effect_holder = NodePath("EffectHolder")
-empty_spaces = Array[Vector2i]([Vector2i(0, 0), Vector2i(9, 7), Vector2i(9, 0), Vector2i(0, 7)])
-ice_spaces = Array[Vector2i]([Vector2i(5, 0), Vector2i(6, 0)])
 possible_pieces = Array[PackedScene]([ExtResource("2_ei70s"), ExtResource("3_a6b7j"), ExtResource("4_g2vqq"), ExtResource("5_2ctr4"), ExtResource("6_0h3so"), ExtResource("7_2y4o2"), ExtResource("8_p5usr")])
-ice_effect = ExtResource("9_yldt0")
 
 [node name="DestroyMatchTimer" type="Timer" parent="."]
-wait_time = 0.5
+wait_time = 0.1
 one_shot = true
 
 [node name="SlideDownTimer" type="Timer" parent="."]
-wait_time = 0.5
+wait_time = 0.1
 one_shot = true
 
 [node name="RefillTimer" type="Timer" parent="."]
-wait_time = 0.5
+wait_time = 0.1
 one_shot = true
-
-[node name="BoardStateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
-script = ExtResource("9_ei70s")
-initial_state = NodePath("BoardInitializeState")
-metadata/_custom_type_script = "uid://3pessb0s7wyl"
-
-[node name="BoardInitializeState" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("board", "board_initialized_next_state")]
-script = ExtResource("10_2ctr4")
-board = NodePath("../..")
-board_initialized_next_state = NodePath("../BoardMoveState")
-metadata/_custom_type_script = "uid://carb5xr2sulk5"
-
-[node name="BoardMoveState" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("board", "has_moved_next_state")]
-script = ExtResource("10_g2vqq")
-board = NodePath("../..")
-has_moved_next_state = NodePath("../BoardCheckMatchState")
-metadata/_custom_type_script = "uid://3bbj6uu7ldqd"
-
-[node name="BoardCheckMatchState" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("board", "no_match_next_state", "has_match_next_state")]
-script = ExtResource("10_a6b7j")
-board = NodePath("../..")
-no_match_next_state = NodePath("../BoardMoveState")
-has_match_next_state = NodePath("../BoardDestroyMatchState")
-metadata/_custom_type_script = "uid://bcxxobk5h5yu0"
-
-[node name="BoardDestroyMatchState" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("board", "destroy_match_timer", "has_destroyed_next_state")]
-script = ExtResource("14_2y4o2")
-board = NodePath("../..")
-destroy_match_timer = NodePath("../../DestroyMatchTimer")
-has_destroyed_next_state = NodePath("../BoardSlideDownState")
-metadata/_custom_type_script = "uid://cve6op4sjghic"
-
-[node name="BoardRefillTimerState" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("board", "refill_timer", "has_refilled_next_state")]
-script = ExtResource("15_p5usr")
-board = NodePath("../..")
-refill_timer = NodePath("../../RefillTimer")
-has_refilled_next_state = NodePath("../BoardCheckMatchState")
-metadata/_custom_type_script = "uid://cydjuvqd03jgk"
-
-[node name="BoardSlideDownState" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("board", "slide_down_timer", "slided_down_pieces_next_state")]
-script = ExtResource("16_axfg5")
-board = NodePath("../..")
-slide_down_timer = NodePath("../../SlideDownTimer")
-slided_down_pieces_next_state = NodePath("../BoardRefillTimerState")
-metadata/_custom_type_script = "uid://dj6h322nn2sgc"
 
 [node name="PieceHolder" type="Node2D" parent="."]
 script = ExtResource("13_0h3so")
@@ -96,3 +49,72 @@ script = ExtResource("13_0h3so")
 [node name="EffectHolder" type="Node2D" parent="."]
 script = ExtResource("11_qif4m")
 metadata/_custom_type_script = "uid://bsg5sjm55ttxi"
+
+[node name="EffectStrategyHolder" type="Node" parent="."]
+
+[node name="IceEffectStrategy" type="Node" parent="EffectStrategyHolder"]
+script = ExtResource("13_x2agg")
+effect_coordinates = Array[Vector2i]([Vector2i(0, 0), Vector2i(8, 8), Vector2i(8, 0), Vector2i(0, 8)])
+effect_scene = ExtResource("9_yldt0")
+metadata/_custom_type_script = "uid://bsacyjrlqr7c5"
+
+[node name="BoardStateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("9_ei70s")
+initial_state = NodePath("Initiate")
+metadata/_custom_type_script = "uid://3pessb0s7wyl"
+
+[node name="Initiate" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("piece_holder", "effect_holder", "board", "board_initialized_next_state", "effect_strategy_holder")]
+script = ExtResource("10_2ctr4")
+piece_holder = NodePath("../../PieceHolder")
+effect_holder = NodePath("../../EffectHolder")
+board = NodePath("../..")
+board_initialized_next_state = NodePath("../Move")
+effect_strategy_holder = NodePath("../../EffectStrategyHolder")
+metadata/_custom_type_script = "uid://carb5xr2sulk5"
+
+[node name="Move" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("board", "piece_holder", "has_moved_next_state")]
+script = ExtResource("10_g2vqq")
+board = NodePath("../..")
+piece_holder = NodePath("../../PieceHolder")
+has_moved_next_state = NodePath("../CheckMatches")
+metadata/_custom_type_script = "uid://3bbj6uu7ldqd"
+
+[node name="CheckMatches" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("board", "no_match_next_state", "has_match_next_state")]
+script = ExtResource("10_a6b7j")
+board = NodePath("../..")
+no_match_next_state = NodePath("../Move")
+has_match_next_state = NodePath("../ExecutePieceSkill")
+metadata/_custom_type_script = "uid://bcxxobk5h5yu0"
+
+[node name="DestroyMatched" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("board", "piece_holder", "effect_holder", "effect_strategy_holder", "destroy_match_timer", "has_destroyed_next_state")]
+script = ExtResource("14_2y4o2")
+board = NodePath("../..")
+piece_holder = NodePath("../../PieceHolder")
+effect_holder = NodePath("../../EffectHolder")
+effect_strategy_holder = NodePath("../../EffectStrategyHolder")
+destroy_match_timer = NodePath("../../DestroyMatchTimer")
+has_destroyed_next_state = NodePath("../SlideDown")
+metadata/_custom_type_script = "uid://cve6op4sjghic"
+
+[node name="Refill" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("board", "piece_holder", "refill_timer", "has_refilled_next_state")]
+script = ExtResource("15_p5usr")
+board = NodePath("../..")
+piece_holder = NodePath("../../PieceHolder")
+refill_timer = NodePath("../../RefillTimer")
+has_refilled_next_state = NodePath("../CheckMatches")
+metadata/_custom_type_script = "uid://cydjuvqd03jgk"
+
+[node name="SlideDown" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("board", "piece_holder", "slide_down_timer", "slided_down_pieces_next_state")]
+script = ExtResource("16_axfg5")
+board = NodePath("../..")
+piece_holder = NodePath("../../PieceHolder")
+slide_down_timer = NodePath("../../SlideDownTimer")
+slided_down_pieces_next_state = NodePath("../Refill")
+metadata/_custom_type_script = "uid://dj6h322nn2sgc"
+
+[node name="ExecutePieceSkill" type="Node" parent="BoardStateMachine" node_paths=PackedStringArray("board", "piece_holder", "executed_skills_next_state")]
+script = ExtResource("18_etvvj")
+board = NodePath("../..")
+piece_holder = NodePath("../../PieceHolder")
+executed_skills_next_state = NodePath("../DestroyMatched")
+metadata/_custom_type_script = "uid://cbmrhjumb5lw4"

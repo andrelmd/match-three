@@ -5,7 +5,9 @@
 [ext_resource type="Texture2D" uid="uid://bgv1rjsf5ufvr" path="res://addons/S13 Match3 Pixelart/02b.png" id="3_fi4vx"]
 
 [node name="Coin" instance=ExtResource("1_t6ncj")]
-texture = ExtResource("2_v3015")
 piece_texture = ExtResource("2_v3015")
 selected_piece_texture = ExtResource("3_fi4vx")
 piece_type = "coin"
+
+[node name="Piece" parent="." index="0"]
+texture = ExtResource("2_v3015")

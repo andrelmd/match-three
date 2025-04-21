@@ -1,6 +1,6 @@
 class_name HealthComponent extends Node
 
-@export var max_health: int
+@export var max_health: int = 1
 var current_health: int: set = _set_current_health
 
 
