@@ -1,22 +1,38 @@
-[gd_scene load_steps=5 format=3 uid="uid://cc61bxuuc2h06"]
+[gd_scene load_steps=6 format=3 uid="uid://cc61bxuuc2h06"]
 
 [ext_resource type="Texture2D" uid="uid://crd5q5eqs66mj" path="res://addons/S13 Match3 Pixelart/01.png" id="1_v0f8i"]
 [ext_resource type="Script" uid="uid://c5a5hxq3w0m5f" path="res://components/pieces/scripts/piece.gd" id="1_ytyhh"]
-[ext_resource type="Texture2D" uid="uid://8f8dtl27epyf" path="res://addons/S13 Match3 Pixelart/01b.png" id="3_3j2uh"]
+[ext_resource type="Script" uid="uid://cimkhcisepmos" path="res://components/skill/scripts/create_bomb_strategy.gd" id="3_58swa"]
+[ext_resource type="Script" uid="uid://bm1u5dh5swcji" path="res://components/blink/nodes/blink_component.gd" id="3_eovof"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_orw54"]
 size = Vector2(16, 16)
 
-[node name="Piece" type="Sprite2D" node_paths=PackedStringArray("area_node")]
-texture = ExtResource("1_v0f8i")
+[node name="Piece" type="Node2D" node_paths=PackedStringArray("piece_sprite", "area_node", "skills", "blink_component")]
 script = ExtResource("1_ytyhh")
-piece_texture = ExtResource("1_v0f8i")
-selected_piece_texture = ExtResource("3_3j2uh")
-area_node = NodePath("Area2D")
+piece_sprite = NodePath("Piece")
+area_node = NodePath("Piece/Area2D")
+skills = [NodePath("Skills/CreateBombStrategy")]
+blink_component = NodePath("BlinkComponent")
+move_duration_s = 0.1
 
-[node name="Area2D" type="Area2D" parent="."]
+[node name="Piece" type="Sprite2D" parent="."]
+texture = ExtResource("1_v0f8i")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+[node name="Area2D" type="Area2D" parent="Piece"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Piece/Area2D"]
 shape = SubResource("RectangleShape2D_orw54")
 
 [node name="Skills" type="Node" parent="."]
+
+[node name="CreateBombStrategy" type="Node" parent="Skills"]
+script = ExtResource("3_58swa")
+skill_name = "Create bomb"
+skill_description = "Creates a new bomb"
+metadata/_custom_type_script = "uid://cimkhcisepmos"
+
+[node name="BlinkComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("3_eovof")
+sprite = NodePath("../Piece")
+metadata/_custom_type_script = "uid://bm1u5dh5swcji"

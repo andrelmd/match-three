@@ -5,7 +5,9 @@
 [ext_resource type="Texture2D" uid="uid://drnns425n8nx7" path="res://addons/S13 Match3 Pixelart/04b.png" id="3_swcs5"]
 
 [node name="Sword" instance=ExtResource("1_abvh0")]
-texture = ExtResource("2_4aqqh")
 piece_texture = ExtResource("2_4aqqh")
 selected_piece_texture = ExtResource("3_swcs5")
 piece_type = "sword"
+
+[node name="Piece" parent="." index="0"]
+texture = ExtResource("2_4aqqh")

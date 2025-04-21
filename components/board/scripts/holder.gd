@@ -11,7 +11,7 @@ func initialize(width: int, height: int, new_cell_size: Vector2) -> void:
 	cell_size = new_cell_size
 	holding.resize(max_height * max_width)
 
-func _is_position_valid(cell_position: Vector2i) -> bool:
+func _is_coordinate_valid(cell_position: Vector2i) -> bool:
 	if not holding.size() > _get_array_position(cell_position):
 		return false
 	if _get_array_position(cell_position) < 0:
@@ -22,21 +22,33 @@ func _is_position_valid(cell_position: Vector2i) -> bool:
 func _get_array_position(cell_position: Vector2i):
 	return cell_position.x * max_height + cell_position.y
 
-func get_in_position(cell_position: Vector2i) -> Variant:
-	if _is_position_valid(cell_position):
+func get_in_coordinate(cell_position: Vector2i) -> Variant:
+	if _is_coordinate_valid(cell_position):
 		return holding[_get_array_position(cell_position)]
 	
 	return null
 
-func set_in_position(node, cell_position: Vector2i) -> void:
-	if _is_position_valid(cell_position):
+func set_in_coordinate(node, cell_position: Vector2i) -> void:
+	if _is_coordinate_valid(cell_position):
 		holding[_get_array_position(cell_position)] = node
 
-func set_null_in_position(cell_position: Vector2i) -> void:
+func set_null_in_coordinate(cell_position: Vector2i) -> void:
 	holding[_get_array_position(cell_position)] = null
 
-func is_position_null(cell_position: Vector2i) -> bool:
-	if not _is_position_valid(cell_position):
+func is_coordinate_null(cell_position: Vector2i) -> bool:
+	if not _is_coordinate_valid(cell_position):
 		return true
 
 	return holding[_get_array_position(cell_position)] == null
+
+func find_coordinate(node) -> Vector2i:
+	var index = holding.find(node)
+
+	if index == -1:
+		return Vector2i(-1, -1)
+		
+	@warning_ignore("integer_division")
+	var width = index / max_height
+	var height = index % max_height
+	return Vector2i(width, height)
+	
